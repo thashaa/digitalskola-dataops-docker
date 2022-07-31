@@ -6,7 +6,7 @@ from airflow.utils.dates import days_ago
 
 from datetime import datetime, timedelta
 
-with DAG('insert_syarif',
+with DAG('insert_madeadi',
     schedule_interval="@once",
     start_date=datetime(2022, 7, 6)       
 ) as dag:
@@ -17,22 +17,22 @@ with DAG('insert_syarif',
       
     ingest_orders = BashOperator(
         task_id='ingest_orders',
-        bash_command="""python3 /opt/airflow/dags/ingest/syarif/ingest_orders.py {{ execution_date.format('YYYY-MM-DD') }}"""
+        bash_command="""python3 /opt/airflow/dags/ingest/madeadi/ingest_orders.py {{ execution_date.format('YYYY-MM-DD') }}"""
     )
     
     to_datalake_orders = BashOperator(
         task_id='to_datalake_orders',
-        bash_command="""/root/google-cloud-sdk/bin/gsutil cp /opt/airflow/dags/output/syarif/orders/orders_{{ execution_date.format('YYYY-MM-DD') }}.csv gs://digitalskola-de-batch7/syarif/staging/orders/"""
+        bash_command="""/root/google-cloud-sdk/bin/gsutil cp /opt/airflow/dags/output/madeadi/orders/orders_{{ execution_date.format('YYYY-MM-DD') }}.csv gs://digitalskola-de-batch7/madeadi/staging/orders/"""
     )
 
     data_definition_orders = BashOperator(
         task_id='data_definition_orders',
-        bash_command="""/root/google-cloud-sdk/bin/bq mkdef --autodetect --source_format=CSV gs://digitalskola-de-batch7/syarif/staging/orders/* > /opt/airflow/dags/table_def/syarif/orders.def"""
+        bash_command="""/root/google-cloud-sdk/bin/bq mkdef --autodetect --source_format=CSV gs://digitalskola-de-batch7/madeadi/staging/orders/* > /opt/airflow/dags/table_def/madeadi/orders.def"""
     )
 
     to_dwh_orders = BashOperator(
         task_id='to_dwh_orders',
-        bash_command="""/root/google-cloud-sdk/bin/bq mk --external_table_definition=/opt/airflow/dags/table_def/syarif/orders.def de_7.syarif_orders"""
+        bash_command="""/root/google-cloud-sdk/bin/bq mk --external_table_definition=/opt/airflow/dags/table_def/madeadi/orders.def de_7.madeadi_orders"""
     )
 
     start >> ingest_orders >> to_datalake_orders >> data_definition_orders >> to_dwh_orders
