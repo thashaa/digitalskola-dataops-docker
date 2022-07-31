@@ -7,8 +7,8 @@ from airflow.utils.dates import days_ago
 from datetime import datetime, timedelta
 
 with DAG('insert_syarif',
-    schedule_interval='0 0 * * *',
-    start_date=datetime(2022, 7, 1)       
+    schedule_interval="@once",
+    start_date=datetime(2022, 7, 6)       
 ) as dag:
 
     start = DummyOperator(
